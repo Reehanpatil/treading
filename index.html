@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRADE CAFÉ — Live Menu Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0e14;
+        --panel: #11151d;
+        --card: #161b24;
+        --card-hi: #1b212c;
+        --line: #232934;
+        --green: #00d68f;
+        --red: #ff4757;
+        --gold: #f5b82e;
+        --text: #e6e9ef;
+        --muted: #717a8c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        background-image:
+          radial-gradient(
+            circle at 20% 0%,
+            rgba(0, 214, 143, 0.06),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 90% 10%,
+            rgba(245, 184, 46, 0.05),
+            transparent 35%
+          );
+      }
+      .font-display {
+        font-family: "Space Grotesk", sans-serif;
+      }
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .tape-track {
+        display: flex;
+        width: max-content;
+        animation: tape 38s linear infinite;
+      }
+      @keyframes tape {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      .tape-track:hover {
+        animation-play-state: paused;
+      }
+
+      .pulse-dot {
+        position: relative;
+      }
+      .pulse-dot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--green);
+        opacity: 0.6;
+        animation: pulse 1.8s ease-out infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(2.8);
+          opacity: 0;
+        }
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--card), var(--bg));
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        transition:
+          transform 0.15s ease,
+          border-color 0.15s ease,
+          background 0.15s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: #2c3340;
+        background: linear-gradient(180deg, var(--card-hi), var(--bg));
+      }
+
+      .badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        padding: 2px 7px;
+        border-radius: 5px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+
+      .tab-btn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.03em;
+        padding: 7px 12px;
+        border-radius: 7px;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        white-space: nowrap;
+        transition: all 0.15s ease;
+      }
+      .tab-btn.active {
+        color: #0a0e14;
+        background: var(--green);
+        border-color: var(--green);
+      }
+      .tab-btn:not(.active):hover {
+        color: var(--text);
+        border-color: #3a4350;
+      }
+
+      .range-btn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        padding: 7px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .range-btn.active {
+        background: var(--green);
+        color: #0a0e14;
+        border-color: var(--green);
+      }
+
+      .buy-btn {
+        background: transparent;
+        color: var(--green);
+        border: 1px solid rgba(0, 214, 143, 0.4);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.03em;
+        padding: 7px 0;
+        border-radius: 7px;
+        transition: all 0.15s ease;
+      }
+      .buy-btn:hover {
+        background: rgba(0, 214, 143, 0.12);
+        border-color: var(--green);
+      }
+      .buy-btn:active {
+        transform: scale(0.97);
+      }
+
+      .qty-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-family: "JetBrains Mono", monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.12s ease;
+      }
+      .qty-btn:hover {
+        border-color: #3a4350;
+        color: var(--text);
+      }
+      .tap-pad {
+        padding: 8px;
+        margin: -8px;
+      }
+      .tap-pad-sm {
+        padding: 6px;
+        margin: -6px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar {
+        height: 5px;
+        width: 5px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #2c3340;
+        border-radius: 3px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      #portfolioPanel {
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+      .flash-ok {
+        animation: flashOk 0.9s ease;
+      }
+      @keyframes flashOk {
+        0% {
+          box-shadow: 0 0 0 0 rgba(0, 214, 143, 0.5);
+        }
+        100% {
+          box-shadow: 0 0 0 14px rgba(0, 214, 143, 0);
+        }
+      }
+
+      .price-flash {
+        animation: priceFlash 0.8s ease;
+      }
+      @keyframes priceFlash {
+        0% {
+          color: var(--gold);
+        }
+        100% {
+          color: inherit;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tape-track {
+          animation: none;
+        }
+        .pulse-dot::after {
+          animation: none;
+        }
+        .price-flash {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen pb-24 lg:pb-0 sm:display-none">
+    <!-- HEADER -->
+    <header
+      class="sticky top-0 z-50 bg-[#0A0E14]/95 backdrop-blur border-b border-[var(--line)]"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2 sm:gap-4"
+      >
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div
+            class="w-9 h-9 rounded-lg bg-[var(--green)] flex items-center justify-center font-display font-bold text-[#0A0E14] text-sm shrink-0"
+          >
+            ₮C
+          </div>
+          <div class="min-w-0">
+            <div
+              class="font-display font-bold text-base leading-tight truncate"
+            >
+              TRADE CAFÉ
+            </div>
+            <div
+              class="font-mono text-[10px] text-[var(--muted)] -mt-0.5 truncate"
+            >
+              TICKER: TCFE &nbsp;•&nbsp; NSE: CAFÉ
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="hidden sm:flex items-center gap-2 font-mono text-xs shrink-0"
+        >
+          <span class="text-[var(--muted)]">CNF&nbsp;50</span>
+          <span id="indexValue" class="font-semibold">24,812.35</span>
+          <span id="indexChange" class="text-[var(--green)]"
+            >▲ 12.40 (0.05%)</span
+          >
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          <button
+            onclick="openOrders()"
+            class="tap-pad font-mono text-[11px] text-[var(--muted)] hover:text-[var(--text)] flex items-center gap-1"
+          >
+            📜 <span id="ordersCount">0</span>
+          </button>
+          <div
+            class="hidden md:flex items-center gap-1.5 font-mono text-[11px] text-[var(--green)]"
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-[var(--green)] pulse-dot"
+            ></span
+            >MARKET OPEN
+          </div>
+          <div
+            id="clock"
+            class="font-mono text-xs text-[var(--muted)] w-[64px] text-right"
+          >
+            00:00:00
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="overflow-hidden border-t border-[var(--line)] bg-[var(--panel)]"
+      >
+        <div
+          id="tapeTrack"
+          class="tape-track py-1.5 font-mono text-[11px]"
+        ></div>
+      </div>
+    </header>
+
+    <!-- TOOLBAR -->
+    <div class="max-w-7xl mx-auto px-4 mt-5 flex flex-col gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div class="relative flex-1 max-w-sm">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search ticker or item…"
+            class="w-full bg-[var(--card)] border border-[var(--line)] rounded-lg pl-9 pr-3 py-2 text-sm font-mono placeholder:text-[var(--muted)] focus:outline-none focus:border-[var(--green)]"
+          />
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)] text-sm"
+            >⌕</span
+          >
+        </div>
+        <div
+          id="tabBar"
+          class="flex gap-2 overflow-x-auto scrollbar-thin pb-1"
+        ></div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <main
+      class="max-w-7xl mx-auto px-4 mt-5 grid lg:grid-cols-[1fr_300px] gap-6 items-start"
+    >
+      <div>
+        <section class="mb-8">
+          <h2 class="font-display font-semibold text-lg mb-3">
+            🔥 Today's Top Gainers
+          </h2>
+          <div
+            id="gainersWrap"
+            class="flex gap-3 overflow-x-auto scrollbar-thin pb-1"
+          ></div>
+        </section>
+
+        <section id="comboSection" class="mb-8">
+          <div class="flex items-baseline justify-between mb-3">
+            <h2 class="font-display font-semibold text-lg">
+              📊 F&amp;O Combo Chain
+            </h2>
+            <span class="font-mono text-[11px] text-[var(--muted)]"
+              >Weekly Expiry · Today</span
+            >
+          </div>
+          <div class="rounded-xl border border-[var(--line)] overflow-hidden">
+            <div
+              class="grid grid-cols-2 bg-[var(--panel)] font-mono text-[11px] text-[var(--muted)] px-4 py-2"
+            >
+              <span
+                >CALL (CE)<span class="hidden sm:inline"> — BULLISH</span></span
+              ><span class="text-right"
+                >PUT (PE)<span class="hidden sm:inline"> — BEARISH</span></span
+              >
+            </div>
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[var(--line)]"
+            >
+              <div
+                id="comboBull"
+                class="p-4 cursor-pointer"
+                onclick="openDetail('BULL')"
+              ></div>
+              <div
+                id="comboBear"
+                class="p-4 cursor-pointer"
+                onclick="openDetail('BEAR')"
+              ></div>
+            </div>
+            <div
+              class="border-t border-[var(--line)] bg-[var(--panel)] px-4 py-2 font-mono text-[11px] text-[var(--gold)] text-center"
+            >
+              STRIKE ₹499 — Both legs priced equal
+            </div>
+          </div>
+          <div
+            id="comboStraddle"
+            class="mt-4 rounded-xl border border-[var(--gold)]/40 bg-gradient-to-r from-[#1c1a12] to-[var(--card)] p-4 cursor-pointer"
+            onclick="openDetail('OPEN')"
+          ></div>
+        </section>
+
+        <section>
+          <div class="flex items-baseline justify-between mb-3">
+            <h2 id="sectionTitle" class="font-display font-semibold text-lg">
+              All Counters
+            </h2>
+            <span
+              id="resultCount"
+              class="font-mono text-[11px] text-[var(--muted)]"
+            ></span>
+          </div>
+          <div
+            id="menuGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"
+          ></div>
+          <p
+            id="emptyState"
+            class="hidden text-center text-[var(--muted)] font-mono text-sm py-12"
+          >
+            No matching tickers found.
+          </p>
+        </section>
+      </div>
+
+      <aside
+        id="portfolioPanel"
+        class="fixed inset-x-0 bottom-0 z-40 translate-y-[calc(100%-52px)] lg:static lg:translate-y-0 lg:z-0 bg-[var(--panel)] border border-[var(--line)] rounded-t-2xl lg:rounded-2xl shadow-2xl lg:shadow-none max-h-[80vh] flex flex-col"
+      >
+        <button
+          id="panelToggle"
+          class="lg:hidden flex items-center justify-between w-full px-4 py-3 font-mono text-xs"
+        >
+          <span class="flex items-center gap-2"
+            >🧾 My Portfolio
+            <span id="cartCountMobile" class="text-[var(--green)]"
+              >(0)</span
+            ></span
+          >
+          <span class="flex items-center gap-2"
+            ><span id="cartTotalMobile" class="font-semibold">₹0</span
+            ><span id="panelChevron">▲</span></span
+          >
+        </button>
+        <div
+          class="hidden lg:flex items-center justify-between px-4 py-3 border-b border-[var(--line)]"
+        >
+          <h3 class="font-display font-semibold text-sm">My Portfolio</h3>
+          <span class="font-mono text-[10px] text-[var(--muted)]"
+            >Today's Order</span
+          >
+        </div>
+        <div
+          id="cartItems"
+          class="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 space-y-2 min-h-[60px]"
+        ></div>
+        <p
+          id="cartEmpty"
+          class="text-center text-[var(--muted)] font-mono text-xs py-6"
+        >
+          Portfolio empty. Add an item to begin.
+        </p>
+        <div class="border-t border-[var(--line)] px-4 py-3 space-y-2">
+          <div
+            class="flex justify-between font-mono text-[11px] text-[var(--muted)]"
+          >
+            <span>Brokerage &amp; Taxes</span
+            ><span class="text-[var(--green)]">₹0 (on the house)</span>
+          </div>
+          <div class="flex justify-between items-baseline">
+            <span class="font-mono text-xs text-[var(--muted)]">NET VALUE</span
+            ><span id="cartTotal" class="font-mono font-bold text-xl">₹0</span>
+          </div>
+          <p
+            id="cartLiveValue"
+            class="hidden font-mono text-[10px] text-[var(--muted)]"
+          ></p>
+          <button
+            id="executeBtn"
+            class="w-full py-2.5 rounded-lg bg-[var(--green)] text-[#0A0E14] font-mono text-sm font-semibold tracking-wide hover:brightness-110 active:scale-[.98] transition"
+          >
+            EXECUTE ORDER ▸
+          </button>
+          <p
+            id="orderConfirm"
+            class="hidden text-center font-mono text-[11px] text-[var(--green)] pt-1"
+          ></p>
+        </div>
+      </aside>
+    </main>
+
+    <footer
+      class="max-w-7xl mx-auto px-4 py-8 mt-6 text-center font-mono text-[11px] text-[var(--muted)]"
+    >
+      Trade Café Terminal — brewing since today ☕📈 · Demo UI for illustration,
+      not real market data.
+    </footer>
+
+    <!-- STOCK DETAIL OVERLAY -->
+    <div
+      id="detailOverlay"
+      style="display: none"
+      class="fixed inset-0 z-[70] bg-[var(--bg)] overflow-y-auto"
+    >
+      <div class="max-w-[460px] mx-auto min-h-full relative pb-28">
+        <div
+          class="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-[#0A0E14]/95 backdrop-blur border-b border-[var(--line)]"
+        >
+          <button onclick="closeDetail()" class="tap-pad text-lg">←</button>
+          <div
+            class="font-mono text-[11px] text-[var(--muted)]"
+            id="detailTicker"
+          >
+            —
+          </div>
+          <button
+            id="detailStar"
+            onclick="toggleWatch(currentTicker, event)"
+            class="tap-pad text-lg text-[var(--muted)]"
+          >
+            ☆
+          </button>
+        </div>
+
+        <div class="px-4 pt-5">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1b212c] to-[#0A0E14] border border-[var(--line)] flex items-center justify-center text-[var(--green)]"
+              id="detailIcon"
+            ></div>
+            <div>
+              <div
+                id="detailName"
+                class="font-display font-semibold text-lg leading-tight"
+              >
+                —
+              </div>
+              <span
+                class="inline-flex items-center gap-1 mt-1 text-[10px] font-mono text-[var(--green)] border border-[var(--green)]/40 rounded px-1.5 py-0.5"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full border border-[var(--green)]"
+                ></span
+                >PURE VEG
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-end justify-between mt-5">
+            <div>
+              <div id="detailPrice" class="font-mono text-3xl font-bold">
+                ₹0
+              </div>
+              <div id="detailChg" class="font-mono text-sm mt-1">—</div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-5">
+            <button
+              data-range="1D"
+              onclick="selectRange('1D')"
+              class="range-btn active"
+            >
+              1D
+            </button>
+            <button
+              data-range="1W"
+              onclick="selectRange('1W')"
+              class="range-btn"
+            >
+              1W
+            </button>
+            <button
+              data-range="1M"
+              onclick="selectRange('1M')"
+              class="range-btn"
+            >
+              1M
+            </button>
+            <button
+              data-range="1Y"
+              onclick="selectRange('1Y')"
+              class="range-btn"
+            >
+              1Y
+            </button>
+          </div>
+          <div id="detailChartWrap" class="mt-3"></div>
+
+          <div class="grid grid-cols-3 gap-2 mt-5 font-mono text-xs">
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">OPEN</div>
+              <div id="statOpen" class="mt-0.5">₹0</div>
+            </div>
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">HIGH</div>
+              <div id="statHigh" class="mt-0.5 text-[var(--green)]">₹0</div>
+            </div>
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">LOW</div>
+              <div id="statLow" class="mt-0.5 text-[var(--red)]">₹0</div>
+            </div>
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">PREV CLOSE</div>
+              <div id="statPrev" class="mt-0.5">₹0</div>
+            </div>
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">VOLUME</div>
+              <div id="statVol" class="mt-0.5">0</div>
+            </div>
+            <div
+              class="bg-[var(--card)] border border-[var(--line)] rounded-lg p-2.5"
+            >
+              <div class="text-[var(--muted)] text-[10px]">OI</div>
+              <div id="statOi" class="mt-0.5">0</div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="font-mono text-[11px] text-[var(--muted)] mb-1.5">
+              ABOUT
+            </div>
+            <p id="detailDesc" class="text-sm text-[#C7CCD6] leading-relaxed">
+              —
+            </p>
+          </div>
+
+          <div class="mt-6">
+            <div class="font-mono text-[11px] text-[var(--muted)] mb-2">
+              SIMILAR STOCKS
+            </div>
+            <div
+              id="similarWrap"
+              class="flex gap-3 overflow-x-auto scrollbar-thin pb-1"
+            ></div>
+          </div>
+        </div>
+
+        <div
+          class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[460px] bg-[var(--panel)] border-t border-[var(--line)] px-4 py-3 flex items-center gap-3"
+        >
+          <div class="flex items-center gap-2">
+            <button onclick="decDetailQty()" class="qty-btn">−</button>
+            <span id="detailQty" class="font-mono text-sm w-5 text-center"
+              >1</span
+            >
+            <button onclick="incDetailQty()" class="qty-btn">+</button>
+          </div>
+          <button
+            id="detailAddBtn"
+            onclick="detailAdd()"
+            class="flex-1 py-2.5 rounded-lg bg-[var(--green)] text-[#0A0E14] font-mono text-sm font-semibold"
+          >
+            ADD 1 TO ORDER · ₹0
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS OVERLAY -->
+    <div
+      id="ordersOverlay"
+      style="display: none"
+      class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm items-center justify-center p-4"
+    >
+      <div
+        class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl max-w-md w-full max-h-[80vh] flex flex-col"
+      >
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-[var(--line)]"
+        >
+          <h3 class="font-display font-semibold text-sm">📜 My Orders</h3>
+          <button onclick="closeOrders()" class="tap-pad text-[var(--muted)]">
+            ✕
+          </button>
+        </div>
+        <div
+          id="ordersList"
+          class="overflow-y-auto scrollbar-thin p-4 flex-1"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      /* ---------- DATA ---------- */
+      const MENU = [
+        { n: "Espresso", t: "ESPR", p: 120, c: "drinks" },
+        { n: "Americano", t: "AMRO", p: 140, c: "drinks" },
+        { n: "Cappuccino", t: "CAPU", p: 180, c: "drinks" },
+        { n: "Latte", t: "LATT", p: 190, c: "drinks" },
+        { n: "Cold Coffee", t: "CCOF", p: 220, c: "drinks" },
+        { n: "Mocha", t: "MOCA", p: 220, c: "drinks" },
+        { n: "Green Tea", t: "GRTE", p: 120, c: "drinks" },
+        { n: "Lemon Tea", t: "LMTE", p: 100, c: "drinks" },
+        { n: "Fresh Lime Soda", t: "FLMS", p: 140, c: "drinks" },
+        { n: "Veg Sandwich", t: "VSND", p: 180, c: "snacks" },
+        { n: "Paneer Sandwich", t: "PSND", p: 220, c: "snacks" },
+        { n: "Grilled Sandwich", t: "GSND", p: 250, c: "snacks" },
+        { n: "Garlic Bread", t: "GBRD", p: 180, c: "snacks" },
+        { n: "French Fries", t: "FRFR", p: 180, c: "snacks" },
+        { n: "Nachos", t: "NACH", p: 220, c: "snacks" },
+        { n: "Margherita Pizza", t: "MARG", p: 350, c: "premium" },
+        { n: "Paneer Pizza", t: "PNZA", p: 450, c: "premium" },
+        { n: "Pasta", t: "PSTA", p: 350, c: "premium" },
+        { n: "Burger + Fries", t: "BURG", p: 380, c: "premium" },
+        { n: "Fruit Bowl", t: "FRBL", p: 250, c: "healthy" },
+        { n: "Sprouts Salad", t: "SPSL", p: 220, c: "healthy" },
+        { n: "Protein Sandwich", t: "PRSN", p: 280, c: "healthy" },
+        { n: "Smoothie", t: "SMTH", p: 250, c: "healthy" },
+      ];
+      const COMBOS = {
+        bull: {
+          n: "Bull Run Combo",
+          t: "BULL",
+          p: 499,
+          items: ["Cappuccino", "Grilled Sandwich", "Fries"],
+        },
+        bear: {
+          n: "Bear Market Combo",
+          t: "BEAR",
+          p: 499,
+          items: ["Cold Coffee", "Pizza Slice", "Garlic Bread"],
+        },
+        open: {
+          n: "Market Open Combo",
+          t: "OPEN",
+          p: 599,
+          items: ["Coffee", "Sandwich", "Dessert"],
+        },
+      };
+      const CATS = [
+        { key: "all", label: "ALL" },
+        { key: "watchlist", label: "★ WATCHLIST" },
+        { key: "drinks", label: "DRINKS" },
+        { key: "snacks", label: "SNACKS" },
+        { key: "premium", label: "PREMIUM · LARGE CAP" },
+        { key: "healthy", label: "HEALTHY · LONG-TERM" },
+      ];
+      const DESC = {
+        ESPR: "A concentrated small-cap shot with maximum caffeine density. High volatility, instant energy delivery.",
+        AMRO: "Espresso diluted with hot water — a defensive, low-volatility play for steady sipping.",
+        CAPU: "Equal parts espresso, steamed milk and foam. A balanced blue-chip favourite across the floor.",
+        LATT: "Smooth and milk-heavy, beginner-friendly. The most widely held position on the drinks desk.",
+        CCOF: "Chilled, blended and crowd-pleasing — peaks hard during summer rallies.",
+        MOCA: "Coffee meets chocolate. A hybrid asset with dual exposure to caffeine and cocoa.",
+        GRTE: "Light, antioxidant-rich, low-calorie. The ESG pick of the beverage sector.",
+        LMTE: "Tangy, light-bodied and the most affordable counter on the board.",
+        FLMS: "Sweet-salty fizz. A refreshing hedge against the afternoon heat.",
+        VSND: "Fresh veggies between toasted bread. A reliable, low-risk midday holding.",
+        PSND: "Paneer-stuffed and protein-rich — the mid-cap mover on the snacks counter.",
+        GSND: "Crisp, grilled and filling. Tends to outperform on rainy days.",
+        GBRD: "Buttery, garlicky, and impossible to hold just one unit of.",
+        FRFR: "Crispy and golden. The most frequently traded snack on the floor.",
+        NACH: "Loaded and crunchy — best consumed before it depreciates (gets cold).",
+        MARG: "Classic tomato-basil-cheese combo. A timeless large-cap favourite.",
+        PNZA: "Loaded with paneer — the premium counter's top performer.",
+        PSTA: "Creamy, comforting, and a steady favourite on the premium board.",
+        BURG: "A bundled large-cap pair trade — burger and fries, sold together for maximum satisfaction.",
+        FRBL: "Fresh seasonal fruit. The healthiest long-term holding on the menu.",
+        SPSL: "Protein-packed and light. A favourite among disciplined, health-focused traders.",
+        PRSN: "Built for the gym-going investor. High protein, steady gains.",
+        SMTH: "Blended fruit goodness. A liquid asset, literally.",
+        BULL: "For the optimists — cappuccino, grilled sandwich and fries, betting the day goes up from here.",
+        BEAR: "For when the market (and your mood) dips — cold coffee, pizza slice and garlic bread to cushion the fall.",
+        OPEN: "The opening bell special — coffee, sandwich and dessert to start the trading day right.",
+      };
+      const ICONS = {
+        cup: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M14 24h30v14a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12V24Z"/><path d="M44 26h4a6 6 0 0 1 0 12h-4"/><path d="M22 14c0 2-3 3-3 6M30 14c0 2-3 3-3 6M38 14c0 2-3 3-3 6"/></svg>`,
+        teacup: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M14 26h30v12a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12V26Z"/><path d="M44 28h4a6 6 0 0 1 0 11h-4"/><path d="M34 10l4 6M34 10l-2 5"/><circle cx="34" cy="10" r="1.6" fill="currentColor" stroke="none"/></svg>`,
+        glass: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M22 14h20l-3 38a4 4 0 0 1-4 4H29a4 4 0 0 1-4-4L22 14Z"/><path d="M22 14h20"/><path d="M38 8l-4 50"/></svg>`,
+        sandwich: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M10 46 32 16 54 46Z"/><path d="M16 38h36M14 42h36"/></svg>`,
+        bread: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M8 38c0-14 10-24 24-24s24 10 24 24-10 14-24 14S8 52 8 38Z"/><path d="M20 34v8M32 30v12M44 34v8"/></svg>`,
+        fries: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M18 28h28l-4 26a3 3 0 0 1-3 3H25a3 3 0 0 1-3-3l-4-26Z"/><path d="M24 28l-2-12M32 28V14M40 28l2-12"/></svg>`,
+        nacho: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M12 46 32 14 52 46Z"/><path d="M20 44 32 24 44 44Z"/><circle cx="32" cy="40" r="1.6" fill="currentColor" stroke="none"/><circle cx="27" cy="42" r="1.6" fill="currentColor" stroke="none"/><circle cx="37" cy="42" r="1.6" fill="currentColor" stroke="none"/></svg>`,
+        pizza: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M32 10 56 50H8Z"/><path d="M16 44h32"/><circle cx="28" cy="34" r="2" fill="currentColor" stroke="none"/><circle cx="38" cy="30" r="2" fill="currentColor" stroke="none"/><circle cx="32" cy="40" r="2" fill="currentColor" stroke="none"/></svg>`,
+        bowl: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M10 32h44c0 11-9.8 20-22 20S10 43 10 32Z"/><path d="M24 16c0 2-3 3-3 6M34 14c0 2-3 3-3 6"/></svg>`,
+        burger: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M12 28c0-9 9-16 20-16s20 7 20 16Z"/><path d="M10 32h44"/><path d="M12 38h40"/><path d="M14 44h36a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4Z"/></svg>`,
+        fruitbowl: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M10 34h44c0 11-9.8 20-22 20S10 45 10 34Z"/><circle cx="22" cy="24" r="5"/><circle cx="34" cy="20" r="5"/><circle cx="44" cy="26" r="4"/></svg>`,
+        combo: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><rect x="14" y="24" width="36" height="28" rx="3"/><path d="M14 32h36"/><path d="M32 24v28"/><path d="M22 24c0-6 4-10 10-10s10 4 10 10"/></svg>`,
+      };
+
+      /* ---------- HELPERS ---------- */
+      function hashStr(s) {
+        let h = 0;
+        for (let i = 0; i < s.length; i++) {
+          h = (h << 5) - h + s.charCodeAt(i);
+          h |= 0;
+        }
+        return Math.abs(h) || 1;
+      }
+      function seededRand(seed) {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      }
+      function series(seed, pts) {
+        let out = [],
+          v = 50,
+          s = seed;
+        for (let i = 0; i < pts; i++) {
+          s = (s * 9301 + 49297) % 233280;
+          const r = seededRand(s);
+          v += (r - 0.5) * 28;
+          v = Math.max(8, Math.min(92, v));
+          out.push(v);
+        }
+        return out;
+      }
+      function stats(seed) {
+        const r1 = seededRand(seed),
+          r2 = seededRand(seed + 11),
+          r3 = seededRand(seed + 23);
+        const chg = (r1 - 0.42) * 4.2;
+        return {
+          chg: chg.toFixed(1),
+          up: chg >= 0,
+          vol: 40 + Math.floor(r2 * 240),
+          oi: 120 + Math.floor(r3 * 880),
+        };
+      }
+      function sparkSVG(seed) {
+        const pts = series(seed, 8),
+          w = 78,
+          h = 30;
+        const max = Math.max(...pts),
+          min = Math.min(...pts),
+          range = max - min || 1;
+        const stepX = w / (pts.length - 1);
+        const path = pts
+          .map(
+            (p, i) =>
+              `${(i * stepX).toFixed(1)},${(h - ((p - min) / range) * h).toFixed(1)}`,
+          )
+          .join(" ");
+        const up = pts[pts.length - 1] >= pts[0];
+        return `<svg viewBox="0 0 ${w} ${h}" class="w-[78px] h-[30px]"><polyline points="${path}" fill="none" stroke="${up ? "#00D68F" : "#FF4757"}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      }
+      function chartSVG(seed, range) {
+        const cfg = {
+          "1D": { pts: 24, off: 0 },
+          "1W": { pts: 7, off: 50 },
+          "1M": { pts: 30, off: 130 },
+          "1Y": { pts: 12, off: 777 },
+        }[range];
+        const data = series(seed + cfg.off, cfg.pts);
+        const w = 400,
+          h = 140;
+        const max = Math.max(...data),
+          min = Math.min(...data),
+          rg = max - min || 1;
+        const stepX = w / (data.length - 1);
+        const pts = data.map((v, i) => [
+          i * stepX,
+          h - ((v - min) / rg) * (h - 20) - 10,
+        ]);
+        const linePath = pts
+          .map(
+            (p, i) =>
+              (i === 0 ? "M" : "L") + p[0].toFixed(1) + "," + p[1].toFixed(1),
+          )
+          .join(" ");
+        const areaPath = linePath + ` L${w},${h} L0,${h} Z`;
+        const up = data[data.length - 1] >= data[0];
+        const color = up ? "#00D68F" : "#FF4757";
+        return `<svg viewBox="0 0 ${w} ${h}" class="w-full h-36"><defs><linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.35"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${areaPath}" fill="url(#chartGrad)" stroke="none"/><path d="${linePath}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
+      }
+      function ohlc(seed, price) {
+        const r = (n) => seededRand(seed + n);
+        const open = Math.round(price - r(1) * 10);
+        const high = Math.round(price + 6 + r(2) * 14);
+        const low = Math.round(price - 6 - r(3) * 14);
+        const prevClose = Math.round(price - (r(4) - 0.5) * 16);
+        return {
+          open: Math.max(open, 1),
+          high: Math.max(high, price + 4),
+          low: Math.max(Math.min(low, price - 4), 1),
+          prevClose: Math.max(prevClose, 1),
+        };
+      }
+      function getIconKey(name) {
+        const n = name.toLowerCase();
+        if (/coffee|espresso|americano|cappuccino|latte|mocha/.test(n))
+          return "cup";
+        if (/tea/.test(n)) return "teacup";
+        if (/soda|smoothie/.test(n)) return "glass";
+        if (/sandwich/.test(n)) return "sandwich";
+        if (/bread/.test(n)) return "bread";
+        if (/fries/.test(n)) return "fries";
+        if (/nachos/.test(n)) return "nacho";
+        if (/pizza/.test(n)) return "pizza";
+        if (/pasta/.test(n)) return "bowl";
+        if (/burger/.test(n)) return "burger";
+        if (/fruit|salad/.test(n)) return "fruitbowl";
+        return "combo";
+      }
+      function loadLS(key, fallback) {
+        try {
+          const v = JSON.parse(localStorage.getItem(key));
+          return v || fallback;
+        } catch (e) {
+          return fallback;
+        }
+      }
+      function saveLS(key, val) {
+        try {
+          localStorage.setItem(key, JSON.stringify(val));
+        } catch (e) {}
+      }
+      function allLookup(t) {
+        return (
+          MENU.find((m) => m.t === t) ||
+          Object.values(COMBOS).find((c) => c.t === t)
+        );
+      }
+
+      /* ---------- STATE ---------- */
+      let activeCat = "all",
+        searchTerm = "";
+      let cart = loadLS("tradecafe_cart", {});
+      let watchlist = loadLS("tradecafe_watchlist", []);
+      let orders = loadLS("tradecafe_orders", []);
+      let currentTicker = null,
+        currentRange = "1D",
+        detailQty = 1;
+      function isWatched(t) {
+        return watchlist.includes(t);
+      }
+
+      /* ---------- LIVE PRICE ENGINE ----------
+   Each item "moves" by ₹1-5 every few seconds, always pulled back
+   within ±10 of its real menu price — so it stays a fun, believable
+   wobble rather than actual price drift. Whatever price is showing
+   the instant someone hits Add to Order is the price that gets
+   locked in for that unit (averaged if they already hold some). */
+      let livePrices = {};
+      function initLivePrices() {
+        MENU.forEach((m) => (livePrices[m.t] = m.p));
+        Object.values(COMBOS).forEach((c) => (livePrices[c.t] = c.p));
+      }
+      function tickLivePrices() {
+        Object.keys(livePrices).forEach((t) => {
+          const item = allLookup(t);
+          if (!item) return;
+          const base = item.p;
+          const move =
+            (Math.floor(Math.random() * 5) + 1) *
+            (Math.random() < 0.5 ? -1 : 1);
+          let next = livePrices[t] + move;
+          next = Math.max(base - 10, Math.min(base + 10, next));
+          livePrices[t] = Math.max(next, 1);
+        });
+        refreshPriceDisplays();
+      }
+      function liveChange(t) {
+        const item = allLookup(t);
+        const lp = livePrices[t] ?? (item ? item.p : 0);
+        const base = item ? item.p : 1;
+        const diff = lp - base;
+        return {
+          lp,
+          up: diff >= 0,
+          pct: Math.abs(base ? (diff / base) * 100 : 0).toFixed(1),
+        };
+      }
+      function refreshPriceDisplays() {
+        [...MENU, ...Object.values(COMBOS)].forEach((item) => {
+          const t = item.t,
+            ch = liveChange(t);
+          document.querySelectorAll(`[data-price="${t}"]`).forEach((el) => {
+            el.textContent = "₹" + ch.lp;
+            el.classList.remove("price-flash");
+            void el.offsetWidth;
+            el.classList.add("price-flash");
+          });
+          document.querySelectorAll(`[data-chg="${t}"]`).forEach((el) => {
+            el.textContent = (ch.up ? "▲ " : "▼ ") + ch.pct + "%";
+            el.className =
+              "font-mono text-[11px] " +
+              (ch.up ? "text-[var(--green)]" : "text-[var(--red)]");
+          });
+        });
+        if (
+          currentTicker &&
+          document.getElementById("detailOverlay").style.display === "block"
+        )
+          updateDetailLivePrice();
+        if (Object.keys(cart).length > 0) renderCart();
+      }
+
+      /* ---------- TABS ---------- */
+      const tabBar = document.getElementById("tabBar");
+      CATS.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.className = "tab-btn" + (cat.key === "all" ? " active" : "");
+        btn.textContent = cat.label;
+        btn.onclick = () => {
+          activeCat = cat.key;
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderGrid();
+        };
+        tabBar.appendChild(btn);
+      });
+
+      /* ---------- TICKER TAPE ---------- */
+      function buildTape() {
+        const items = MENU.map((m) => {
+          const s = stats(hashStr(m.t));
+          return `<span class="px-4 flex items-center gap-1.5"><span class="text-[var(--muted)]">${m.t}</span><span>₹${m.p}</span><span class="${s.up ? "text-[var(--green)]" : "text-[var(--red)]"}">${s.up ? "▲" : "▼"}${Math.abs(s.chg)}%</span></span>`;
+        }).join("");
+        document.getElementById("tapeTrack").innerHTML = items + items;
+      }
+
+      /* ---------- MENU GRID ---------- */
+      const titleMap = {
+        all: "All Counters",
+        watchlist: "★ My Watchlist",
+        drinks: "Drinks Desk",
+        snacks: "Quick Snacks Counter",
+        premium: "Premium · Large Cap",
+        healthy: "Healthy Trader Menu",
+      };
+      function renderGrid() {
+        const grid = document.getElementById("menuGrid");
+        const term = searchTerm.trim().toLowerCase();
+        const filtered = MENU.filter((m) => {
+          const matchCat =
+            activeCat === "all" ||
+            (activeCat === "watchlist" ? isWatched(m.t) : m.c === activeCat);
+          const matchSearch =
+            !term ||
+            m.n.toLowerCase().includes(term) ||
+            m.t.toLowerCase().includes(term);
+          return matchCat && matchSearch;
+        });
+        document.getElementById("sectionTitle").textContent =
+          titleMap[activeCat];
+        document.getElementById("resultCount").textContent =
+          filtered.length + " listed";
+        document
+          .getElementById("emptyState")
+          .classList.toggle("hidden", filtered.length > 0);
+        if (activeCat === "watchlist" && filtered.length === 0) {
+          document.getElementById("emptyState").textContent =
+            "Your watchlist is empty. Tap ☆ on any item to add.";
+          document.getElementById("emptyState").classList.remove("hidden");
+        } else {
+          document.getElementById("emptyState").textContent =
+            "No matching tickers found.";
+        }
+
+        grid.innerHTML = filtered
+          .map((m) => {
+            const seed = hashStr(m.t);
+            const s = stats(seed);
+            const ch = liveChange(m.t);
+            return `
+    <div class="card p-3.5 cursor-pointer" onclick="openDetail('${m.t}')">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="font-mono text-[11px] text-[var(--muted)]">${m.t}</div>
+          <div class="font-display font-medium text-sm leading-snug mt-0.5">${m.n}</div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="badge">${m.c.toUpperCase()}</span>
+          <button onclick="toggleWatch('${m.t}', event)" class="tap-pad-sm text-sm ${isWatched(m.t) ? "text-[var(--gold)]" : "text-[var(--muted)]"}">${isWatched(m.t) ? "★" : "☆"}</button>
+        </div>
+      </div>
+      <div class="flex items-end justify-between mt-3">
+        <div>
+          <div class="font-mono text-xl font-semibold" data-price="${m.t}">₹${ch.lp}</div>
+          <div class="font-mono text-[11px] ${ch.up ? "text-[var(--green)]" : "text-[var(--red)]"}" data-chg="${m.t}">${ch.up ? "▲ " : "▼ "}${ch.pct}%</div>
+        </div>
+        ${sparkSVG(seed)}
+      </div>
+      <div class="flex justify-between mt-3 pt-2.5 border-t border-[var(--line)] font-mono text-[10px] text-[var(--muted)]"><span>VOL ${s.vol}</span><span>OI ${s.oi}</span></div>
+      <button class="buy-btn w-full mt-3" onclick="addToCart('${m.t}', event)">+ ADD TO ORDER</button>
+    </div>`;
+          })
+          .join("");
+      }
+
+      /* ---------- TOP GAINERS ---------- */
+      function renderTopGainers() {
+        const withStats = MENU.map((m) => ({ ...m, s: stats(hashStr(m.t)) }));
+        withStats.sort((a, b) => parseFloat(b.s.chg) - parseFloat(a.s.chg));
+        const top = withStats.slice(0, 6);
+        document.getElementById("gainersWrap").innerHTML = top
+          .map((m) => {
+            const ch = liveChange(m.t);
+            return `
+    <div onclick="openDetail('${m.t}')" class="card p-3 text-left w-40 shrink-0 cursor-pointer">
+      <div class="flex justify-between items-center">
+        <span class="font-mono text-[10px] text-[var(--muted)]">${m.t}</span>
+        <button onclick="toggleWatch('${m.t}', event)" class="tap-pad-sm text-xs ${isWatched(m.t) ? "text-[var(--gold)]" : "text-[var(--muted)]"}">${isWatched(m.t) ? "★" : "☆"}</button>
+      </div>
+      <div class="text-xs font-medium truncate mt-0.5">${m.n}</div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="font-mono text-sm font-semibold" data-price="${m.t}">₹${ch.lp}</span>
+        <span class="font-mono text-[10px] ${ch.up ? "text-[var(--green)]" : "text-[var(--red)]"}" data-chg="${m.t}">${ch.up ? "▲ " : "▼ "}${ch.pct}%</span>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      /* ---------- COMBO CHAIN ---------- */
+      function comboBlock(combo, side) {
+        const seed = hashStr(combo.t);
+        const s = stats(seed);
+        const ch = liveChange(combo.t);
+        const color = side === "bull" ? "var(--green)" : "var(--red)";
+        return `
+  <div class="flex items-start justify-between">
+    <div>
+      <div class="font-mono text-[11px] text-[var(--muted)]">${combo.t}</div>
+      <div class="font-display font-medium text-sm">${combo.n}</div>
+      <div class="font-mono text-[10px] text-[var(--muted)] mt-1">${combo.items.join(" · ")}</div>
+    </div>
+    <span class="font-mono text-[10px] px-2 py-0.5 rounded" style="color:${color};border:1px solid ${color}55">${side === "bull" ? "CE" : "PE"}</span>
+  </div>
+  <div class="flex items-end justify-between mt-3">
+    <div><div class="font-mono text-lg font-semibold" data-price="${combo.t}">₹${ch.lp}</div><div class="font-mono text-[11px]" style="color:${color}">LTP</div></div>
+    ${sparkSVG(seed)}
+  </div>
+  <div class="flex justify-between mt-2 font-mono text-[10px] text-[var(--muted)]"><span>VOL ${s.vol}</span><span>OI ${s.oi}</span></div>
+  <button class="buy-btn w-full mt-3" onclick="addToCart('${combo.t}', event)">+ ADD TO ORDER</button>`;
+      }
+      function renderCombos() {
+        document.getElementById("comboBull").innerHTML = comboBlock(
+          COMBOS.bull,
+          "bull",
+        );
+        document.getElementById("comboBear").innerHTML = comboBlock(
+          COMBOS.bear,
+          "bear",
+        );
+        const s = stats(hashStr(COMBOS.open.t));
+        const ch = liveChange(COMBOS.open.t);
+        document.getElementById("comboStraddle").innerHTML = `
+    <div class="flex items-start justify-between">
+      <div>
+        <span class="font-mono text-[10px] px-2 py-0.5 rounded border border-[var(--gold)]/50 text-[var(--gold)]">STRADDLE · ATM</span>
+        <div class="font-display font-medium mt-2">${COMBOS.open.n}</div>
+        <div class="font-mono text-[11px] text-[var(--muted)] mt-1">${COMBOS.open.items.join(" · ")} — covers both directions</div>
+      </div>
+      <div class="text-right"><div class="font-mono text-xl font-semibold text-[var(--gold)]" data-price="${COMBOS.open.t}">₹${ch.lp}</div><div class="font-mono text-[10px] text-[var(--muted)]">VOL ${s.vol} · OI ${s.oi}</div></div>
+    </div>
+    <button class="buy-btn w-full mt-3" style="border-color:rgba(245,184,46,.4);color:var(--gold)" onclick="addToCart('${COMBOS.open.t}', event)">+ ADD TO ORDER</button>`;
+      }
+
+      /* ---------- WATCHLIST ---------- */
+      function toggleWatch(t, evt) {
+        if (evt) evt.stopPropagation();
+        if (isWatched(t)) {
+          watchlist = watchlist.filter((x) => x !== t);
+        } else {
+          watchlist.push(t);
+        }
+        saveLS("tradecafe_watchlist", watchlist);
+        renderGrid();
+        renderTopGainers();
+        renderDetailStar();
+      }
+
+      /* ---------- CART (locks live price at click-time, averages like a real holding) ---------- */
+      function addToCart(ticker, evt, qty = 1) {
+        if (evt) evt.stopPropagation();
+        const livePrice = livePrices[ticker] ?? allLookup(ticker).p;
+        const existing = cart[ticker];
+        if (existing) {
+          const newQty = existing.qty + qty;
+          const newAvg = Math.round(
+            (existing.avg * existing.qty + livePrice * qty) / newQty,
+          );
+          cart[ticker] = { qty: newQty, avg: newAvg };
+        } else {
+          cart[ticker] = { qty, avg: livePrice };
+        }
+        saveLS("tradecafe_cart", cart);
+        renderCart();
+        const panel = document.getElementById("portfolioPanel");
+        panel.classList.add("flash-ok");
+        setTimeout(() => panel.classList.remove("flash-ok"), 900);
+      }
+      function changeQty(ticker, delta) {
+        const entry = cart[ticker];
+        if (!entry) return;
+        if (delta > 0) {
+          const livePrice = livePrices[ticker] ?? allLookup(ticker).p;
+          const newQty = entry.qty + delta;
+          cart[ticker] = {
+            qty: newQty,
+            avg: Math.round(
+              (entry.avg * entry.qty + livePrice * delta) / newQty,
+            ),
+          };
+        } else {
+          entry.qty += delta;
+          if (entry.qty <= 0) delete cart[ticker];
+          else cart[ticker] = entry;
+        }
+        saveLS("tradecafe_cart", cart);
+        renderCart();
+      }
+      function renderCart() {
+        const wrap = document.getElementById("cartItems");
+        const entries = Object.entries(cart);
+        document
+          .getElementById("cartEmpty")
+          .classList.toggle("hidden", entries.length > 0);
+        let invested = 0,
+          current = 0;
+        wrap.innerHTML = entries
+          .map(([t, { qty, avg }]) => {
+            const item = allLookup(t);
+            if (!item) return "";
+            const lp = livePrices[t] ?? item.p;
+            const lineInv = avg * qty,
+              lineCur = lp * qty,
+              pnl = lineCur - lineInv;
+            invested += lineInv;
+            current += lineCur;
+            const pnlColor =
+              pnl >= 0 ? "text-[var(--green)]" : "text-[var(--red)]";
+            return `
+    <div class="bg-[var(--card)] border border-[var(--line)] rounded-lg px-3 py-2">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0"><div class="font-mono text-[11px] text-[var(--muted)]">${t}</div><div class="text-xs font-medium truncate">${item.n}</div></div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button class="qty-btn" onclick="changeQty('${t}',-1)">−</button>
+          <span class="font-mono text-xs w-5 text-center">${qty}</span>
+          <button class="qty-btn" onclick="changeQty('${t}',1)">+</button>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-1.5 font-mono text-[10px] text-[var(--muted)]">
+        <span>Avg ₹${avg} · LTP ₹${lp}</span>
+        <span class="${pnlColor}">${pnl >= 0 ? "▲" : "▼"} ₹${Math.abs(pnl)} · ₹${lineInv}</span>
+      </div>
+    </div>`;
+          })
+          .join("");
+        document.getElementById("cartTotal").textContent = "₹" + invested;
+        document.getElementById("cartTotalMobile").textContent = "₹" + invested;
+        document.getElementById("cartCountMobile").textContent =
+          "(" + entries.reduce((a, [, e]) => a + e.qty, 0) + ")";
+        const liveLine = document.getElementById("cartLiveValue");
+        if (liveLine) {
+          if (entries.length > 0) {
+            const diff = current - invested;
+            liveLine.classList.remove("hidden");
+            liveLine.innerHTML = `Live value right now: ₹${current} <span class="${diff >= 0 ? "text-[var(--green)]" : "text-[var(--red)]"}">(${diff >= 0 ? "▲" : "▼"} ₹${Math.abs(diff)})</span>`;
+          } else {
+            liveLine.classList.add("hidden");
+          }
+        }
+        document.getElementById("orderConfirm").classList.add("hidden");
+      }
+      document.getElementById("executeBtn").onclick = () => {
+        if (Object.keys(cart).length === 0) return;
+        const token = Math.floor(1000 + Math.random() * 8999);
+        const orderItems = Object.entries(cart).map(([t, { qty, avg }]) => {
+          const it = allLookup(t);
+          return { t, n: it.n, qty, price: avg };
+        });
+        const total = orderItems.reduce((a, i) => a + i.price * i.qty, 0);
+        orders.unshift({
+          id: token,
+          time: new Date().toLocaleString("en-IN", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          }),
+          items: orderItems,
+          total,
+        });
+        saveLS("tradecafe_orders", orders);
+        const el = document.getElementById("orderConfirm");
+        el.textContent = `ORDER EXECUTED ✓ Token #${token}`;
+        el.classList.remove("hidden");
+        cart = {};
+        saveLS("tradecafe_cart", cart);
+        setTimeout(renderCart, 1400);
+        renderOrdersBadge();
+      };
+
+      /* ---------- STOCK DETAIL ---------- */
+      function openDetail(t) {
+        currentTicker = t;
+        currentRange = "1D";
+        detailQty = 1;
+        const item = allLookup(t);
+        if (!item) return;
+        const seed = hashStr(item.t);
+        const s = stats(seed);
+        const o = ohlc(seed, item.p);
+        document.getElementById("detailTicker").textContent = item.t;
+        document.getElementById("detailName").textContent = item.n;
+        document.getElementById("detailIcon").innerHTML =
+          ICONS[getIconKey(item.n)];
+        document.getElementById("detailPrice").textContent =
+          "₹" + (livePrices[item.t] ?? item.p);
+        updateDetailChg();
+        document.getElementById("detailDesc").textContent =
+          DESC[item.t] || "A well-loved staple on the menu.";
+        document.getElementById("detailChartWrap").innerHTML = chartSVG(
+          seed,
+          currentRange,
+        );
+        document.getElementById("statOpen").textContent = "₹" + o.open;
+        document.getElementById("statHigh").textContent = "₹" + o.high;
+        document.getElementById("statLow").textContent = "₹" + o.low;
+        document.getElementById("statPrev").textContent = "₹" + o.prevClose;
+        document.getElementById("statVol").textContent = s.vol;
+        document.getElementById("statOi").textContent = s.oi;
+        document.getElementById("detailQty").textContent = detailQty;
+        updateDetailAddLabel();
+        renderDetailStar();
+        renderSimilar(item);
+        document
+          .querySelectorAll(".range-btn")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.range === currentRange),
+          );
+        document.getElementById("detailOverlay").style.display = "block";
+        document.body.style.overflow = "hidden";
+        document.getElementById("detailOverlay").scrollTop = 0;
+      }
+      function closeDetail() {
+        document.getElementById("detailOverlay").style.display = "none";
+        document.body.style.overflow = "";
+      }
+      function updateDetailChg() {
+        const ch = liveChange(currentTicker);
+        const chgEl = document.getElementById("detailChg");
+        chgEl.textContent =
+          (ch.up ? "▲ " : "▼ ") + ch.pct + "% since menu price";
+        chgEl.className =
+          "font-mono text-sm mt-1 " +
+          (ch.up ? "text-[var(--green)]" : "text-[var(--red)]");
+      }
+      function updateDetailLivePrice() {
+        if (!currentTicker) return;
+        const priceEl = document.getElementById("detailPrice");
+        priceEl.textContent = "₹" + livePrices[currentTicker];
+        priceEl.classList.remove("price-flash");
+        void priceEl.offsetWidth;
+        priceEl.classList.add("price-flash");
+        updateDetailChg();
+        updateDetailAddLabel();
+      }
+      function selectRange(r) {
+        currentRange = r;
+        const item = allLookup(currentTicker);
+        if (!item) return;
+        document.getElementById("detailChartWrap").innerHTML = chartSVG(
+          hashStr(item.t),
+          r,
+        );
+        document
+          .querySelectorAll(".range-btn")
+          .forEach((b) => b.classList.toggle("active", b.dataset.range === r));
+      }
+      function incDetailQty() {
+        detailQty++;
+        document.getElementById("detailQty").textContent = detailQty;
+        updateDetailAddLabel();
+      }
+      function decDetailQty() {
+        if (detailQty > 1) detailQty--;
+        document.getElementById("detailQty").textContent = detailQty;
+        updateDetailAddLabel();
+      }
+      function updateDetailAddLabel() {
+        const lp = livePrices[currentTicker];
+        if (lp == null) return;
+        document.getElementById("detailAddBtn").textContent =
+          `ADD ${detailQty} TO ORDER · ₹${lp * detailQty}`;
+      }
+      function detailAdd() {
+        addToCart(currentTicker, null, detailQty);
+        const btn = document.getElementById("detailAddBtn");
+        const old = btn.textContent;
+        btn.textContent = "ADDED ✓";
+        setTimeout(() => {
+          btn.textContent = old;
+        }, 900);
+      }
+      function renderDetailStar() {
+        const el = document.getElementById("detailStar");
+        const watched = isWatched(currentTicker);
+        el.textContent = watched ? "★" : "☆";
+        el.classList.toggle("text-[var(--gold)]", watched);
+        el.classList.toggle("text-[var(--muted)]", !watched);
+      }
+      function renderSimilar(item) {
+        const isCombo = !!item.items;
+        let list;
+        if (isCombo) {
+          list = Object.values(COMBOS).filter((c) => c.t !== item.t);
+        } else {
+          list = MENU.filter((m) => m.c === item.c && m.t !== item.t).slice(
+            0,
+            5,
+          );
+        }
+        document.getElementById("similarWrap").innerHTML = list
+          .map((m) => {
+            const ch = liveChange(m.t);
+            return `<button onclick="openDetail('${m.t}')" class="card p-3 text-left w-36 shrink-0">
+      <div class="font-mono text-[10px] text-[var(--muted)]">${m.t}</div>
+      <div class="text-xs font-medium mt-0.5 truncate">${m.n}</div>
+      <div class="flex items-center justify-between mt-2">
+        <span class="font-mono text-sm font-semibold" data-price="${m.t}">₹${ch.lp}</span>
+        <span class="font-mono text-[10px] ${ch.up ? "text-[var(--green)]" : "text-[var(--red)]"}" data-chg="${m.t}">${ch.up ? "▲ " : "▼ "}${ch.pct}%</span>
+      </div>
+    </button>`;
+          })
+          .join("");
+      }
+
+      /* ---------- ORDERS ---------- */
+      function openOrders() {
+        renderOrdersList();
+        document.getElementById("ordersOverlay").style.display = "flex";
+      }
+      function closeOrders() {
+        document.getElementById("ordersOverlay").style.display = "none";
+      }
+      function renderOrdersBadge() {
+        document.getElementById("ordersCount").textContent = orders.length;
+      }
+      function renderOrdersList() {
+        const wrap = document.getElementById("ordersList");
+        if (orders.length === 0) {
+          wrap.innerHTML =
+            '<p class="text-center text-[var(--muted)] font-mono text-xs py-10">No past orders yet.</p>';
+          return;
+        }
+        wrap.innerHTML = orders
+          .map(
+            (o) => `
+    <div class="border border-[var(--line)] rounded-lg p-3 mb-2 bg-[var(--card)]">
+      <div class="flex justify-between items-center font-mono text-[11px] text-[var(--muted)]"><span>#${o.id}</span><span>${o.time}</span></div>
+      <div class="text-xs mt-1.5 space-y-0.5">${o.items.map((i) => `<div class="flex justify-between"><span>${i.n} ×${i.qty}</span><span class="font-mono">₹${i.price * i.qty}</span></div>`).join("")}</div>
+      <div class="flex justify-between font-mono text-sm font-semibold mt-2 pt-2 border-t border-[var(--line)]"><span>Total</span><span>₹${o.total}</span></div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      /* ---------- UI MISC ---------- */
+      const panel = document.getElementById("portfolioPanel");
+      const chevron = document.getElementById("panelChevron");
+      let panelOpen = false;
+      document.getElementById("panelToggle").onclick = () => {
+        panelOpen = !panelOpen;
+        panel.style.transform = panelOpen ? "translateY(0)" : "";
+        chevron.textContent = panelOpen ? "▼" : "▲";
+      };
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        searchTerm = e.target.value;
+        renderGrid();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeDetail();
+          closeOrders();
+        }
+      });
+
+      function tickClock() {
+        document.getElementById("clock").textContent =
+          new Date().toLocaleTimeString("en-IN", { hour12: false });
+      }
+      tickClock();
+      setInterval(tickClock, 1000);
+
+      let idx = 24812.35;
+      function tickIndex() {
+        const delta = (Math.random() - 0.48) * 9;
+        idx += delta;
+        const up = delta >= 0;
+        document.getElementById("indexValue").textContent = idx.toLocaleString(
+          "en-IN",
+          { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+        );
+        const elc = document.getElementById("indexChange");
+        elc.textContent = `${up ? "▲" : "▼"} ${Math.abs(delta).toFixed(2)} (${Math.abs((delta / idx) * 100).toFixed(2)}%)`;
+        elc.className = up ? "text-[var(--green)]" : "text-[var(--red)]";
+      }
+      setInterval(tickIndex, 2600);
+
+      /* ---------- INIT ---------- */
+      initLivePrices();
+      buildTape();
+      renderGrid();
+      renderCombos();
+      renderTopGainers();
+      renderCart();
+      renderOrdersBadge();
+      setInterval(tickLivePrices, 4000);
+    </script>
+  </body>
+</html>
